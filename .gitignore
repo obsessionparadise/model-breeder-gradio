@@ -1,0 +1,38 @@
+# Model weights and generated output — these are large binary files that
+# don't belong in git history. The folder tree itself (with a README
+# placeholder in each leaf folder) IS tracked; only real content is
+# ignored. Directories must be un-ignored before files inside them can be
+# (a classic gitignore gotcha) — hence negating the dirs first, then the
+# READMEs at any depth.
+model_breeder_data/input/**
+model_breeder_data/output/**
+!model_breeder_data/input/
+!model_breeder_data/input/*/
+!model_breeder_data/output/
+!model_breeder_data/output/*/
+!model_breeder_data/**/README.md
+
+# Common model file extensions, in case a custom MODEL_BREEDER_DIR
+# still lives inside the repo folder
+*.safetensors
+*.ckpt
+*.pt
+*.bin
+*.gguf
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Gradio
+gradio_cached_examples/

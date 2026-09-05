@@ -1,0 +1,26 @@
+# Model Breeder — Gradio Edition — dependencies
+#
+# NOTE for local install: this installs a CPU build of torch by default via
+# plain `pip install -r requirements.txt`. If you have an NVIDIA GPU, install
+# the matching CUDA build of torch FIRST from https://pytorch.org/get-started/locally/
+# and then run `pip install -r requirements.txt` (pip will see torch is already
+# satisfied and skip it). On Google Colab, torch + CUDA are already preinstalled,
+# so this file just adds what's missing.
+#
+# NOTE on diffusers/transformers versions: SD1.5/SDXL work fine on older
+# releases, but Z-Image Turbo, Krea 2, and Anima need very recent ones
+# (their pipeline classes — ZImagePipeline, Krea2Pipeline — are new).
+# If the Image Generator tab tells you a pipeline class is missing for one
+# of these architectures, run: pip install -U diffusers transformers
+
+torch>=2.1
+diffusers>=0.40.0
+transformers>=4.50.0
+accelerate>=0.30.0
+safetensors>=0.4.3
+omegaconf>=2.3.0
+gradio>=4.36.0
+Pillow>=10.0.0
+torchsde>=0.2.6
+psutil>=5.9.0
+huggingface_hub>=0.20.0
