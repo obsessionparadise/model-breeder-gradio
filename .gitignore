@@ -28,6 +28,12 @@ venv/
 env/
 *.egg-info/
 
+# webui.sh/webui.bat's dependency-change marker — normally lands inside
+# venv/ (already ignored above), but also at the repo root if launched
+# with --skip-venv/USE_VENV=0. Either way it's a local cache file that
+# gets regenerated automatically, not something to track.
+.requirements_hash
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db

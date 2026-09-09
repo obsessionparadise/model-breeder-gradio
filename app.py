@@ -620,7 +620,7 @@ def build_app() -> gr.Blocks:
         )
         with gr.Group(elem_classes=['m3-card']):
             _card_title('System')
-            sys_status_md = gr.Markdown(guards.system_status_markdown(DATA_DIR))
+            sys_status_md = gr.Markdown(guards.system_status_markdown(DATA_DIR), sanitize_html=False)
             sys_refresh_btn = gr.Button('Refresh status', elem_classes=['m3-btn-tonal'], size='sm')
             sys_refresh_btn.click(lambda: guards.system_status_markdown(DATA_DIR), outputs=sys_status_md)
 
@@ -983,16 +983,19 @@ def main():
     parser = argparse.ArgumentParser(description='Model Breeder — Gradio Edition')
     parser.add_argument('--share', action='store_true', help='Create a public gradio.live share link')
     parser.add_argument('--port', type=int, default=7860, help='Server port')
+    parser.add_argument('--listen', action='store_true',
+                         help='Bind to 0.0.0.0 to expose on your LAN (alias matching AUTOMATIC1111/Forge terminology)')
     parser.add_argument('--server-name', type=str, default=None,
-                         help='Bind address, e.g. 0.0.0.0 to expose on your LAN')
+                         help='Bind address, e.g. 0.0.0.0 to expose on your LAN (same as --listen)')
     args = parser.parse_args()
 
     in_colab = _in_colab()
+    server_name = args.server_name or ('0.0.0.0' if (args.listen or not in_colab) else None)
     demo = build_app()  # theme + custom CSS are applied inside build_app()
     demo.queue(default_concurrency_limit=2).launch(
         share=args.share or in_colab,
         server_port=args.port,
-        server_name=args.server_name or ('0.0.0.0' if not in_colab else None),
+        server_name=server_name,
         debug=in_colab,
     )
 

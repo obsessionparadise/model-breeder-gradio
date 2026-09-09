@@ -1106,3 +1106,180 @@ reordering. The fix was then verified reachable through the actual
 `engine.ImageGenSession` in isolation. The full 8-mode merge regression
 suite and a fresh app build+launch+HTTP-serve test were both re-run clean
 as the final step.
+
+---
+
+## Launcher scripts (webui.sh / webui.bat)
+
+Added a proper launcher pair, matching the AUTOMATIC1111/Forge/ComfyUI
+pattern users of this kind of tool already expect: `webui.sh` +
+`webui-user.sh` for Linux/macOS, `webui.bat` + `webui-user.bat` for
+Windows. Each pair splits into a launcher (creates a venv on first run,
+installs dependencies only when `requirements.txt` actually changed, then
+launches) and a user-editable config file the launcher sources
+automatically, so customizing launch flags never means editing the
+launcher logic itself.
+
+**Actually run, not just written, on the Linux side:** `webui.sh` was
+executed end to end multiple times during development — the `--skip-venv`
+path (against the real system Python), the default venv-creation path
+(confirmed it genuinely creates an isolated venv and starts a real,
+independent dependency download into it), and the hash-based skip-reinstall
+logic on a second run. This surfaced one real, worth-fixing issue before
+delivery:
+
+**Finding: a plain `pip install -r requirements.txt` fails outright on
+modern Debian/Ubuntu when *not* using a virtual environment.** PEP 668
+("externally managed environment") blocks pip from touching the system
+Python at all without an explicit override. Reproduced directly running
+`./webui.sh --skip-venv` in this sandbox — it failed hard with pip's PEP
+668 error. This only affects the explicit `--skip-venv`/`use_venv=0`
+opt-out (the default path, which creates a venv, is exempt from this
+restriction entirely — exactly why venv is the default). Fixed by
+detecting this specific failure and automatically retrying with
+`--break-system-packages` only in that already-explicit no-venv case, with
+a clear log line explaining why, rather than either leaving pip's
+intimidating wall of text as the final word or silently masking a genuine
+system/environment mismatch. Re-verified fixed: the retry path was
+exercised for real, installing the two packages that were actually missing
+in that test environment (not a mock).
+
+**Honestly not run here:** `webui.bat` was written to mirror `webui.sh`'s
+logic and flags exactly (venv creation, the same hash-based skip-install
+check via `certutil` instead of `sha256sum`, the same `--reinstall`/
+`--skip-venv` flags) but this sandbox is Linux-only, so it could not be
+executed to verify. It's flagged here rather than presented with the same
+confidence as the tested `.sh` counterpart — if something about it doesn't
+work on a real Windows machine, the manual `pip install -r requirements.txt
+&& python app.py` path documented in the README is the fallback, and a
+concrete, useful bug report either way.
+
+Also added `--listen` to `app.py`'s own argument parser as an alias for
+`--server-name 0.0.0.0`, purely for familiarity — it's the term
+AUTOMATIC1111/Forge use for the same thing, so someone coming from those
+tools doesn't need to learn new terminology for an already-familiar action.
+
+---
+
+## Round 6 — theme.py's first real audit, and a second real launcher bug
+
+Five prior rounds had never actually scrutinized `theme.py`, and the
+launcher scripts (added just before this round) had only been probed
+lightly. This round targeted both directly.
+
+### K1. 🔴 `webui.sh`'s final `exec` line could crash with "unbound
+variable" on macOS's actual stock bash — the most common invocation
+(no extra arguments) was the one at risk
+**Where:** `webui.sh`'s final launch line.
+**Why it matters:** the line read
+`exec "$PYTHON" app.py $COMMANDLINE_ARGS "${EXTRA_ARGS[@]}"` under
+`set -u`. Expanding `"${EXTRA_ARGS[@]}"` when `EXTRA_ARGS` is a declared-
+but-empty array (`EXTRA_ARGS=()`, the normal case — it only gains elements
+if the user passes script-level flags this launcher doesn't recognize) is
+version-dependent behavior: safe on bash ≥4.4 with certain configurations
+(confirmed fine on the bash 5.2 available in this sandbox), but a
+long-documented `set -u` gotcha on bash 3.2 — which is still, today, what
+`bash` resolves to on an unmodified Mac, since Apple never shipped a
+GPLv3 bash release for licensing reasons. This script's own header
+explicitly claims Linux/macOS support, and the failure mode would have hit
+exactly the most common case: running `./webui.sh` with no extra
+arguments at all.
+**Fix:** guarded the expansion with a length check
+(`if [[ ${#EXTRA_ARGS[@]} -gt 0 ]]; then ... else ... fi`) rather than
+expanding the array unconditionally — `${#EXTRA_ARGS[@]}` (just the count)
+does not carry the same version-dependent risk. This is strictly safer on
+every bash version, including the one actually available for testing here.
+**Residual risk, stated honestly:** could not reproduce the actual crash
+in this sandbox, since only bash 5.2 was available to test against — the
+finding rests on a well-documented, long-standing bash compatibility issue
+rather than a direct reproduction. The fix carries no downside on any bash
+version regardless, which is why it was applied even without being able to
+observe the failure directly.
+
+### K2. 🟠 Both launchers' dependency-change detection could silently skip
+installing anything at all, on a fresh machine, if the hashing tool itself
+was unavailable
+**Where:** `webui.sh`'s `hash_requirements()` fallback path and
+`webui.bat`'s `certutil`-based hash extraction.
+**Why it matters:** reproduced directly (in isolation, against the exact
+comparison logic both scripts use): if the hash of `requirements.txt`
+can't be determined (no `sha256sum`/`shasum` on an unusual Linux/macOS
+setup; `certutil` missing, or producing unexpected output due to
+locale-dependent text on non-English Windows) *and* there's no previous
+hash file yet — the first-run case, by definition, for anyone actually
+relying on this launcher for the first time — both `NEW_HASH` and
+`OLD_HASH` end up as empty strings. Comparing `"" != ""` is false, so the
+script would conclude nothing needs installing and skip the dependency
+install step entirely, on a machine that has never installed anything —
+leaving the user to hit a confusing `ModuleNotFoundError` from `app.py`
+moments later with zero indication that the install step was silently
+skipped, let alone why.
+**Fix:** both scripts now also treat an empty/undetermined hash as
+"needs install" — `webui.sh` via an added `-z "$NEW_HASH"` clause in the
+existing comparison; `webui.bat` via an explicit
+`if "%NEW_HASH%"=="" set "NEEDS_INSTALL=1"` line. An undetermined hash now
+always errs toward a (possibly redundant) install rather than a silent
+skip — the right default, since a redundant reinstall costs a little time
+and a silent skip costs a confusing failure. Verified directly against the
+exact comparison logic: the empty-both-sides case now correctly forces an
+install, while the two normal cases (hashes match → skip; hashes differ →
+install) still behave exactly as before.
+**Residual risk:** none identified for the logic itself; `webui.bat`'s
+side of this remains untested on real Windows for the same reason noted
+when the launchers were first added — this sandbox is Linux-only.
+
+### K3. 🟡 `theme.py` had a batch of CSS custom properties defined and
+never referenced anywhere — dead code in the design system itself
+**Where:** `theme.py`'s `:root {}` block.
+**Why it matters:** a static scan (used-vs-defined CSS variable names)
+found eleven custom properties — full secondary-color-role tokens,
+success/error tokens, and a third elevation level — declared but never
+consumed by any actual CSS rule. Not a rendering bug (unused CSS variables
+are simply inert, they don't break anything), but real, silent dead code
+in a design system whose whole purpose is to document what's actually in
+use.
+**What happened instead of a blind deletion:** before removing anything,
+checked whether any of these tokens had a legitimate, currently-missing
+use case rather than assuming they were simply worth discarding. The
+System status card was displaying its idle/busy state with plain emoji
+(🟢/🔴) — exactly the kind of state indicator these unused success/error
+tokens exist for. Wired `--m3-success-container` /
+`--m3-on-success-container` / `--m3-error-container` /
+`--m3-on-error-container` into a small styled status chip there, which
+required first checking (and confirming, by testing) that Gradio's
+`gr.Markdown` sanitizes inline HTML by default (`sanitize_html=True`) —
+had this not been checked, the styled chip would have silently rendered
+as plain unstyled text, a subtle bug in its own right. Enabled
+`sanitize_html=False` for that one specific component only, safe because
+its content is entirely generated by trusted app code, never user input.
+Verified the chip actually renders styled (not just that the Python
+compiles) by checking the real served HTML for the expected inline style.
+The remaining tokens with no concrete use in this app's current feature
+set (a full secondary color role, bare non-container success/error
+variants, and the extra elevation level) were removed rather than left as
+speculative unused scaffolding — confirmed via the same static scan that
+the Python-level `TOKENS` dict values they were built from remain fully
+intact and still used elsewhere (Gradio's own theme API calls), so nothing
+about the actual color palette was lost, only the unused CSS exposure of
+a few of its entries.
+**Residual risk:** none identified — full regression suite and a fresh
+app launch, including a direct check of the new status chip's rendered
+HTML, all passed after this change.
+
+## Testing performed (round 6 additions)
+
+K1 could not be reproduced directly (no bash 3.2 available in this
+sandbox to confirm the crash) but the fix was verified to be strictly
+safe on the bash version that *was* available, with no behavior change
+for the common case. K2 was reproduced directly against the exact
+comparison expressions both launchers use — confirmed the empty-hash
+scenario silently skipped installation under the old logic, confirmed the
+fix forces installation instead, and confirmed the two normal cases
+(match/mismatch) are unaffected. K3's fix was verified by checking
+`gr.Markdown`'s actual `sanitize_html` default before relying on it,
+confirming the new status chip's styled HTML string is what
+`guards.system_status_markdown()` actually produces, and then confirming
+that HTML survives all the way into the real served page. The full
+8-mode merge regression suite, a full theme-construction check, and a
+fresh app build+launch+HTTP-serve test were all re-run clean as the final
+step, as in every prior round.

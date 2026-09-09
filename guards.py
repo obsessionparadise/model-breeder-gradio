@@ -481,6 +481,13 @@ def system_status_markdown(workspace_dir) -> str:
             gpu_line = 'CUDA available (details unknown)'
     else:
         gpu_line = 'no GPU detected — running on CPU'
-    busy_line = '🔴 a job is currently running' if JOB_LOCK.busy else '🟢 idle'
+    if JOB_LOCK.busy:
+        busy_line = ('<span style="display:inline-block;padding:2px 10px;border-radius:999px;'
+                     'background:var(--m3-error-container);color:var(--m3-on-error-container);'
+                     'font-weight:600;font-size:12.5px;">● a job is currently running</span>')
+    else:
+        busy_line = ('<span style="display:inline-block;padding:2px 10px;border-radius:999px;'
+                     'background:var(--m3-success-container);color:var(--m3-on-success-container);'
+                     'font-weight:600;font-size:12.5px;">● idle</span>')
     return (f'**RAM:** {ram_line}  ·  **Disk:** {disk_line}  ·  **GPU:** {gpu_line}\n\n'
             f'**Status:** {busy_line}')

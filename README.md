@@ -124,41 +124,95 @@ See **`CRITIQUE.md`** for the full audit and how each of these was tested.
 
 ## Run locally
 
+**One-click style, like AUTOMATIC1111/Forge/ComfyUI:** double-click (or run)
+the launcher for your OS. First run creates a virtual environment and
+installs everything; every run after that starts in seconds, since it only
+reinstalls dependencies when `requirements.txt` actually changes.
+
 ```bash
-git clone <this folder, or just copy app.py + engine.py + requirements.txt>
+# Linux / macOS
+./webui.sh
+
+# Windows — double-click webui.bat, or from a terminal:
+webui.bat
+```
+
+That's it — it prints a local URL (usually `http://127.0.0.1:7860`) to open.
+To customize how it launches (get a public share link, change the port,
+expose it on your LAN), edit **`webui-user.sh`** (Linux/macOS) or
+**`webui-user.bat`** (Windows) — the same split AUTOMATIC1111/Forge use, so
+your settings survive even if the main launcher script itself is ever
+updated. The most common thing to add there:
+
+```bash
+# in webui-user.sh
+export COMMANDLINE_ARGS="--share"
+```
+```bat
+:: in webui-user.bat
+set COMMANDLINE_ARGS=--share
+```
+
+Other launcher flags (passed to the script itself, not `app.py`):
+
+| Flag | What it does |
+|---|---|
+| `--reinstall` | force a full dependency reinstall even if `requirements.txt` hasn't changed |
+| `--skip-venv` | install straight into your system/current Python instead of creating a venv |
+
+And flags `app.py` itself understands (put these in `COMMANDLINE_ARGS`, or run `python app.py ...` directly):
+
+| Flag | What it does |
+|---|---|
+| `--share` | create a public `gradio.live` link — works anywhere, no router/firewall setup |
+| `--listen` | also bind to `0.0.0.0` so other devices on your LAN can reach it (same as `--server-name 0.0.0.0`) |
+| `--port 8080` | use a specific port (default `7860`) |
+
+**Prefer doing it by hand?** That still works exactly as before:
+
+```bash
+git clone <this repo>
 cd model_breeder_gradio
 python -m venv .venv && source .venv/bin/activate   # optional but recommended
 pip install -r requirements.txt
-python app.py
-```
-
-Then open the printed `http://127.0.0.1:7860` URL. Useful flags:
-
-```bash
-python app.py --share                 # also get a public gradio.live link
-python app.py --server-name 0.0.0.0   # expose on your LAN
-python app.py --port 8080             # custom port
+python app.py --share
 ```
 
 If you have an NVIDIA GPU, install the CUDA build of torch **before**
-`pip install -r requirements.txt` (see the note at the top of that file) —
+installing `requirements.txt` (see the note at the top of that file) —
 otherwise you'll get the CPU build, which works but is much slower for
 image generation.
 
+> The `.bat` launcher was written to mirror `webui.sh` exactly (venv setup,
+> hash-based dependency skip, the same flags) but — being on a Linux
+> sandbox — couldn't be executed here to verify; `webui.sh` itself *was*
+> actually run end-to-end during development, including the venv-creation
+> path and a real dependency install. If something about `webui.bat`
+> doesn't work on your machine, the manual steps above are the fallback
+> and a good bug report either way.
+
 ## Run on Google Colab
 
-In a Colab cell:
+Paste this as a single cell and run it — same "run the cell, click the
+link" flow as the A1111/Forge/ComfyUI Colab notebooks:
 
 ```python
-!pip install -q gradio diffusers transformers accelerate safetensors omegaconf torchsde
-# upload app.py and engine.py to the Colab file browser, or:
-# !git clone <your repo> && %cd <your repo>
+!git clone <your repo url> model_breeder_gradio
+%cd model_breeder_gradio
+!python setup_workspace.py
+!pip install -q -r requirements.txt
 !python app.py --share
 ```
 
+(No repo yet? Skip the `git clone` line and upload `app.py`, `engine.py`,
+`guards.py`, `theme.py`, `setup_workspace.py`, and `requirements.txt` to
+the Colab file browser instead, then run the rest of the cell from that
+folder.)
+
 Colab is auto-detected — `share=True` turns on automatically even if you
-forget the flag, so a public `https://xxxx.gradio.live` link appears in the
-cell output. Click it to use the full UI from your phone or another tab.
+forget `--share`, so a public `https://xxxx.gradio.live` link appears in
+the cell output within a few seconds of the final line running. Click it
+to use the full UI from your phone or another tab.
 
 **Tip:** to keep your merged models across Colab sessions, mount Google
 Drive and point the workspace at it before launching:
@@ -245,6 +299,8 @@ CSS string, decoupled from the app logic in `app.py`.
 ## Files in this project
 
 - `app.py` — Gradio UI and all wiring (`python app.py` to run)
+- `webui.sh` / `webui-user.sh` — one-command launcher for Linux/macOS (venv setup, dependency install, then launch) and its user-editable config, matching the AUTOMATIC1111/Forge launcher split
+- `webui.bat` / `webui-user.bat` — the same pair for Windows
 - `engine.py` — the merge/bake/VAE/metadata/generation engine (no UI code, reusable from a script or notebook cell too)
 - `guards.py` — RAM/disk preflight checks, cancellation, single-flight job lock, GPU-OOM handling, input sanitization
 - `theme.py` — the Material 3 design system (color tokens, typography, shape, elevation) as a `gr.Theme` + CSS

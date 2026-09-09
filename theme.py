@@ -217,9 +217,6 @@ MATERIAL_CSS = f"""
   --m3-on-primary: {TOKENS["on_primary"]};
   --m3-primary-container: {TOKENS["primary_container"]};
   --m3-on-primary-container: {TOKENS["on_primary_container"]};
-  --m3-secondary: {TOKENS["secondary"]};
-  --m3-secondary-container: {TOKENS["secondary_container"]};
-  --m3-on-secondary-container: {TOKENS["on_secondary_container"]};
   --m3-surface: {TOKENS["surface"]};
   --m3-surface-container-low: {TOKENS["surface_container_low"]};
   --m3-surface-container: {TOKENS["surface_container"]};
@@ -227,17 +224,13 @@ MATERIAL_CSS = f"""
   --m3-surface-container-highest: {TOKENS["surface_container_highest"]};
   --m3-on-surface: {TOKENS["on_surface"]};
   --m3-on-surface-variant: {TOKENS["on_surface_variant"]};
-  --m3-outline: {TOKENS["outline"]};
   --m3-outline-variant: {TOKENS["outline_variant"]};
-  --m3-success: {TOKENS["success"]};
   --m3-success-container: {TOKENS["success_container"]};
   --m3-on-success-container: {TOKENS["on_success_container"]};
-  --m3-error: {TOKENS["error"]};
   --m3-error-container: {TOKENS["error_container"]};
   --m3-on-error-container: {TOKENS["on_error_container"]};
   --m3-el1: 0 1px 2px 0 rgba(34,18,82,0.08), 0 1px 3px 1px rgba(34,18,82,0.08);
   --m3-el2: 0 1px 2px 0 rgba(34,18,82,0.10), 0 2px 6px 2px rgba(34,18,82,0.10);
-  --m3-el3: 0 1px 3px 0 rgba(34,18,82,0.12), 0 4px 8px 3px rgba(34,18,82,0.12);
 }}
 
 * {{ scroll-behavior: smooth; }}
