@@ -1283,3 +1283,54 @@ that HTML survives all the way into the real served page. The full
 8-mode merge regression suite, a full theme-construction check, and a
 fresh app build+launch+HTTP-serve test were all re-run clean as the final
 step, as in every prior round.
+
+---
+
+## Round 7 — a launcher failure mode found by testing an incomplete checkout
+
+Continuing the same discipline applied to the launcher scripts in round 6:
+this round tested what happens when someone doesn't have a complete
+project checkout — a realistic scenario (copying just `app.py`, a partial
+`git clone`, an interrupted download) that hadn't been tried yet.
+
+### L1. 🟠 A missing `requirements.txt` produced a misleading error with
+`--skip-venv`, and wasted time creating a venv unnecessarily on the
+default path — in both cases, obscuring the actual, simple problem
+**Where:** `webui.sh` and `webui.bat`.
+**Why it matters:** reproduced both paths directly. With `--skip-venv`,
+the missing file never even got a chance to produce its own error — pip's
+PEP 668 "externally-managed-environment" guard fires unconditionally
+before pip looks at its arguments at all, so the user would see a long,
+scary, completely unrelated wall of text about system Python policy
+instead of anything pointing at the real, simple problem (a missing
+file). With the default venv path, the script got further — it created a
+whole virtual environment first, *then* correctly reported "Could not
+open requirements file" — technically accurate, but only after spending
+real time (and disk space) on a virtual environment that was doomed from
+the start. Neither path told the user quickly and clearly what was
+actually wrong.
+**Fix:** added an explicit check for the three files this project
+actually needs (`requirements.txt`, `app.py`, `setup_workspace.py`)
+immediately after Python detection, before any venv creation or pip work
+begins, in both `webui.sh` and `webui.bat`. A missing file now fails in
+under a second with a message that names exactly what's missing and the
+most likely cause (an incomplete copy/clone). Verified directly in
+`webui.sh`: both the `--skip-venv` path (previously masked by PEP 668) and
+the default venv path (previously wasted time on venv creation) now give
+the same fast, clear, accurate error — and confirmed the normal case (all
+files present) is completely unaffected, still reaching the launch banner
+correctly.
+**Residual risk:** same honest caveat as every other `webui.bat` change —
+this sandbox is Linux-only, so the Windows side of this fix is
+logic-reviewed against the tested `.sh` behavior, not executed directly.
+
+## Testing performed (round 7 additions)
+
+L1 was reproduced concretely in both of `webui.sh`'s code paths before
+being fixed — confirmed the PEP-668 masking with `--skip-venv` and the
+wasted venv-creation with the default path both actually happen, then
+confirmed the fix produces a fast, correct error in both cases without
+creating a venv or attempting any pip work. Re-confirmed the ordinary
+case (a complete checkout) still runs through to the launch banner
+exactly as before. Full Python compile check and bash syntax check for
+both shell scripts were re-run clean as the final step.

@@ -50,6 +50,27 @@ fi
 echo "Python:  $("$PYTHON" --version 2>&1)"
 echo "Workdir: $(pwd)"
 
+# ---- sanity: this looks like a complete checkout -----------------------
+# Checked here, before any venv creation or pip work, deliberately: a
+# missing requirements.txt with --skip-venv used to get masked entirely by
+# an unrelated "externally-managed-environment" error from pip's own PEP
+# 668 guard (which fires before pip even looks at its arguments), and with
+# the default venv path it wasted time creating a whole virtual
+# environment before failing on the exact same missing file. Both
+# reproduced directly before adding this check.
+MISSING=()
+for f in requirements.txt app.py setup_workspace.py; do
+    [[ -f "$f" ]] || MISSING+=("$f")
+done
+if [[ ${#MISSING[@]} -gt 0 ]]; then
+    echo "ERROR: this doesn't look like a complete Model Breeder checkout —"
+    echo "       missing: ${MISSING[*]}"
+    echo "       Make sure you copied/cloned the whole project, not just"
+    echo "       individual files, and that you're running this script"
+    echo "       from inside that folder."
+    exit 1
+fi
+
 # ---- virtual environment ---------------------------------------------
 if [[ "$USE_VENV" == "1" ]]; then
     if [[ ! -d "$VENV_DIR" ]]; then

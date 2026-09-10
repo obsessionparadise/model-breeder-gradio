@@ -49,6 +49,24 @@ if errorlevel 1 (
 for /f "delims=" %%v in ('%PYTHON% --version 2^>^&1') do echo Python:  %%v
 echo Workdir: %cd%
 
+:: ---- sanity: this looks like a complete checkout -----------------------
+:: Checked here, before any venv creation or pip work: a missing
+:: requirements.txt would otherwise only surface as a confusing pip error
+:: after already spending time creating a virtual environment first.
+set "MISSING="
+if not exist "requirements.txt" set "MISSING=!MISSING! requirements.txt"
+if not exist "app.py" set "MISSING=!MISSING! app.py"
+if not exist "setup_workspace.py" set "MISSING=!MISSING! setup_workspace.py"
+if not "%MISSING%"=="" (
+    echo ERROR: this doesn't look like a complete Model Breeder checkout -
+    echo        missing:%MISSING%
+    echo        Make sure you copied/cloned the whole project, not just
+    echo        individual files, and that you're running this script
+    echo        from inside that folder.
+    pause
+    exit /b 1
+)
+
 if "%USE_VENV%"=="1" (
     if not exist "%VENV_DIR%\Scripts\python.exe" (
         echo Creating virtual environment in .\%VENV_DIR% ...
