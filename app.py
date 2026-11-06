@@ -27,6 +27,22 @@ Google Drive folder for persistence across sessions.
 from __future__ import annotations
 
 import argparse
+import logging
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# Constants & logger
+# ---------------------------------------------------------------------------
+MAX_UPLOAD_SIZE = 500 * 1024 * 1024  # 500 MiB limit for uploaded files
+
+logger = logging.getLogger('model_breeder')
+logger.setLevel(logging.INFO)
+log_file_path = Path(__file__).parent / 'logs' / 'app.log'
+log_file_path.parent.mkdir(parents=True, exist_ok=True)
+handler = logging.FileHandler(log_file_path, mode='a')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 import os
 import traceback
 import warnings
@@ -128,6 +144,44 @@ def _classify_upload(src: Path) -> Path:
 
 
 def upload_to_input(files, destination_label):
+    """Handle file uploads from the UI.
+
+    Performs validation, size checks, and safe copying into the appropriate
+    input directory. Returns a markdown string listing current files and any
+    error messages.
+    """
+    errors = []
+    forced_dest = UPLOAD_DESTINATIONS.get(destination_label)
+    MAX_UPLOAD_SIZE = 500 * 1024 * 1024  # 500 MiB limit
+    if files:
+        for f in files:
+            # Resolve source path (Gradio File objects expose .name)
+            src_path = Path(f.name if hasattr(f, 'name') else f)
+            # Validate filename
+            try:
+                guards.validate_filename(src_path.name)
+            except Exception as ve:
+                errors.append(f'⚠ Invalid filename {src_path.name}: {ve}')
+                continue
+            # Size check
+            try:
+                size = src_path.stat().st_size
+                if size > MAX_UPLOAD_SIZE:
+                    errors.append(f'⚠ File {src_path.name} exceeds size limit ({size/1e6:.1f} MiB)')
+                    continue
+            except Exception as e:
+                errors.append(f'⚠ Could not determine size for {src_path.name}: {e}')
+                continue
+            dest_dir = forced_dest if forced_dest is not None else _classify_upload(src_path)
+            try:
+                # Use the new safe atomic copy helper (still guards.atomic_copy_into)
+                guards.atomic_copy_into(src_path, dest_dir)  # CRITIQUE.md C3: atomic, never a partial file
+            except Exception as e:
+                errors.append(f'⚠ Failed to upload {src_path.name}: {e}')
+    md = list_files_markdown()
+    if errors:
+        md = '\n'.join(errors) + '\n\n' + md
+    return md
     errors = []
     forced_dest = UPLOAD_DESTINATIONS.get(destination_label)
     if files:

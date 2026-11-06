@@ -30,10 +30,122 @@ except ImportError:
 import torch
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
 # Typed exceptions — so UI code can distinguish "expected, show the message"
 # from "unexpected, show the full traceback" (CRITIQUE.md B3).
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 class InsufficientResourceError(RuntimeError):
     """Raised when a preflight check determines an operation would not fit
     in available RAM or disk space. Always raised *before* any destructive
@@ -52,9 +164,121 @@ class OperationCancelled(RuntimeError):
     the same way it would be for a real failure."""
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # RAM introspection (CRITIQUE.md A1, A2)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 def available_ram_bytes() -> Optional[int]:
     """Best-effort available RAM in bytes. Returns None if it genuinely
     cannot be determined (never raises) — callers must treat None as
@@ -127,9 +351,121 @@ def estimate_ckpt_ram_mb(path) -> float:
     return size_mb * 2.0 * 1.15
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Disk introspection (CRITIQUE.md B1)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 def check_disk_space(target_dir, required_bytes: float, context: str, margin: float = 1.15) -> None:
     target_dir = Path(target_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -153,9 +489,121 @@ def estimate_output_bytes(*input_paths, fp16: bool = True) -> int:
     return int(base * (0.55 if fp16 else 1.05))
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Single-flight job lock (CRITIQUE.md C2)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 class JobLock:
     """A non-blocking, single-flight lock shared by every heavy operation
     in this app (merge / bake / vae-bake / blend / checkpoint-load /
@@ -192,9 +640,121 @@ class JobLock:
 JOB_LOCK = JobLock()
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Cancellation (CRITIQUE.md D3)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 class CancelToken:
     """A cooperative cancellation flag. Long-running loops call .check()
     at safe boundaries (between tensors, between denoising steps); it
@@ -215,9 +775,121 @@ class CancelToken:
         return self._event.is_set()
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # GPU OOM handling (CRITIQUE.md A5, A6)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 def _is_cuda_oom(exc: BaseException) -> bool:
     oom_cls = getattr(torch.cuda, 'OutOfMemoryError', None)
     if oom_cls is not None and isinstance(exc, oom_cls):
@@ -253,9 +925,121 @@ def release_gpu_memory():
         torch.cuda.empty_cache()
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Generation-request clamping (CRITIQUE.md A7)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 GEN_LIMITS = {
     'width': (64, 2048), 'height': (64, 2048),
     'steps': (1, 150), 'cfg': (0.0, 30.0),
@@ -290,9 +1074,121 @@ def clamp_generation_request(width, height, steps, cfg, n_images, clip_skip, log
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Input sanitization (CRITIQUE.md F1, F2)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 def safe_filename(name: str, default: str = 'output.safetensors') -> str:
     name = (name or '').strip()
     if not name:
@@ -315,9 +1211,121 @@ def sanity_check_block_weights(vals, log_cb=None, lo=-3.0, hi=3.0):
                f'— this is allowed but double-check it wasn\'t a typo.')
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Approximate latent -> RGB preview (CRITIQUE.md D3)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Small linear projection matrices from latent channels straight to RGB,
 # skipping a real VAE decode entirely — this is the same category of
 # technique long used across the open-source SD ecosystem (e.g.
@@ -370,9 +1378,121 @@ def approx_latents_to_preview(latents):
         return None
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # Atomic file write helper (CRITIQUE.md C3)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 def atomic_copy_into(src_path, dest_dir) -> Path:
     """Copy src_path into dest_dir under a temp name, then atomically
     rename to the final name — so a concurrent reader of dest_dir never
@@ -459,10 +1579,122 @@ def check_hf_repo_disk_space(repo_id_or_path: str, log_cb=None) -> None:
             log_cb(f'  (could not preflight-check download size for {repo_id_or_path}: {e} — proceeding anyway)')
 
 
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 # System status snapshot (surfaced in the UI so the guards are visible,
 # not just invisible plumbing)
-# ─────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Helper: safe atomic copy with filename validation
+# ---------------------------------------------------------------------------
+
+def safe_copy_into(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Performs an atomic copy using a temporary file.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy: write to a temporary file then replace
+    temp_path = dest_path.with_suffix('.tmp')
+    shutil.copy2(src, temp_path)
+    os.replace(temp_path, dest_path)
+
+# ---------------------------------------------------------------------------
+# Typed exceptions — so UI code can distinguish "expected, show the message"
+# from "unexpected, show the full traceback" (CRITIQUE.md B3).
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    'validate_filename',
+    'safe_copy_into',
+    'InsufficientResourceError',
+    'GpuOutOfMemoryError',
+    'OperationCancelled',
+    'JOB_LOCK',
+    'CancelToken',
+    'available_ram_bytes',
+    'total_ram_bytes',
+    'require_ram',
+    'estimate_ckpt_ram_mb',
+    'check_disk_space',
+    'estimate_output_bytes',
+]
+(src: Path, dest_dir: Path) -> None:
+    """Copy *src* into *dest_dir* safely.
+
+    - Validates the filename via ``validate_filename``.
+    - Uses ``guards.atomic_copy_into`` to ensure the copy is atomic.
+    """
+    # Ensure the filename is safe
+    safe_name = validate_filename(src.name)
+    # Construct destination path
+    dest_path = dest_dir / safe_name
+    # Perform atomic copy (existing helper ensures atomicity)
+    atomic_copy_into(src, dest_dir)
+    # Note: ``atomic_copy_into`` already writes to ``dest_dir`` with original name;
+    # we rely on it to respect the validated name because ``src.name`` is safe.
+
 def system_status_markdown(workspace_dir) -> str:
     ram_avail = available_ram_bytes()
     ram_total = total_ram_bytes()
@@ -491,3 +1723,21 @@ def system_status_markdown(workspace_dir) -> str:
                      'font-weight:600;font-size:12.5px;">● idle</span>')
     return (f'**RAM:** {ram_line}  ·  **Disk:** {disk_line}  ·  **GPU:** {gpu_line}\n\n'
             f'**Status:** {busy_line}')
+
+# ---------------------------------------------------------------------------
+# Helper: validate filenames for uploaded files
+# ---------------------------------------------------------------------------
+
+def validate_filename(name: str) -> str:
+    """Validate and sanitise a filename.
+
+    Allows alphanumeric characters, dash, underscore, and dot. Raises
+    ``ValueError`` if the name contains prohibited characters or attempts
+    directory traversal.
+    """
+    if '..' in name or '/' in name or '\\' in name:
+        raise ValueError('Filename must not contain path separators')
+    import re
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
+        raise ValueError('Filename contains illegal characters')
+    return name
